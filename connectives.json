@@ -1,0 +1,47 @@
+{
+    "&": {
+        "name": "and",
+        "arg_no": "2",
+        "truth_bit": "0001"
+    },
+    "/": {
+        "name": "or",
+        "arg_no": "2",
+        "truth_bit": "0111"
+    },
+    "|": {
+        "name": "nand",
+        "arg_no": "2",
+        "truth_bit": "1110"
+    },
+    ";": {
+        "name": "nor",
+        "arg_no": "2",
+        "truth_bit": "1000"
+    },
+    "~": {
+        "name": "neg",
+        "arg_no": "1",
+        "truth_bit": "10"
+    },
+    "->": {
+        "name": "imply",
+        "arg_no": "2",
+        "truth_bit": "1101"
+    },
+    "<->": {
+        "name": "equiv",
+        "arg_no": "2",
+        "truth_bit": "1001"
+    },
+    "^": {
+        "name": "top",
+        "arg_no": "0",
+        "truth_bit": "1"
+    },
+    "_": {
+        "name": "bot",
+        "arg_no": "0",
+        "truth_bit": "0"
+    }
+}
