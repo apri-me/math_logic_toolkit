@@ -1,45 +1,45 @@
 {
-    "&": {
+    "\\and": {
         "name": "and",
         "arg_no": "2",
         "truth_bit": "0001"
     },
-    "/": {
+    "\\or": {
         "name": "or",
         "arg_no": "2",
         "truth_bit": "0111"
     },
-    "|": {
+    "\\nand": {
         "name": "nand",
         "arg_no": "2",
         "truth_bit": "1110"
     },
-    ";": {
+    "\\nor": {
         "name": "nor",
         "arg_no": "2",
         "truth_bit": "1000"
     },
-    "~": {
+    "\\neg": {
         "name": "neg",
         "arg_no": "1",
         "truth_bit": "10"
     },
-    "->": {
+    "\\imply": {
         "name": "imply",
         "arg_no": "2",
         "truth_bit": "1101"
     },
-    "<->": {
+    "\\equiv": {
         "name": "equiv",
         "arg_no": "2",
         "truth_bit": "1001"
     },
-    "^": {
+    "\\top": {
         "name": "top",
         "arg_no": "0",
         "truth_bit": "1"
     },
-    "_": {
+    "\\bot": {
         "name": "bot",
         "arg_no": "0",
         "truth_bit": "0"
