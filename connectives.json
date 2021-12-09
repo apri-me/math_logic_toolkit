@@ -1,47 +1,65 @@
 {
     "\\and": {
         "name": "and",
-        "arg_no": "2",
-        "truth_bit": "0001"
+        "arg_no": 2,
+        "truth_bit": "0001",
+        "self_composite": 1,
+        "else_composite": 0
     },
     "\\or": {
         "name": "or",
-        "arg_no": "2",
-        "truth_bit": "0111"
+        "arg_no": 2,
+        "truth_bit": "0111",
+        "self_composite": 1,
+        "else_composite": 0
     },
     "\\nand": {
         "name": "nand",
-        "arg_no": "2",
-        "truth_bit": "1110"
+        "arg_no": 2,
+        "truth_bit": "1110",
+        "self_composite": 0,
+        "else_composite": 0
     },
     "\\nor": {
         "name": "nor",
-        "arg_no": "2",
-        "truth_bit": "1000"
+        "arg_no": 2,
+        "truth_bit": "1000",
+        "self_composite": 0,
+        "else_composite": 0
     },
     "\\neg": {
         "name": "neg",
-        "arg_no": "1",
-        "truth_bit": "10"
+        "arg_no": 1,
+        "truth_bit": "10",
+        "self_composite": 1,
+        "else_composite": 0
     },
     "\\imply": {
         "name": "imply",
-        "arg_no": "2",
-        "truth_bit": "1101"
+        "arg_no": 2,
+        "truth_bit": "1101",
+        "self_composite": 0,
+        "else_composite": 0
     },
     "\\equiv": {
         "name": "equiv",
-        "arg_no": "2",
-        "truth_bit": "1001"
+        "arg_no": 2,
+        "truth_bit": "1001",
+        "self_composite": 1,
+        "else_composite": 0
     },
     "\\top": {
         "name": "top",
-        "arg_no": "0",
-        "truth_bit": "1"
+        "arg_no": 0,
+        "truth_bit": "1",
+        "self_composite": 1,
+        "else_composite": 1
     },
     "\\bot": {
         "name": "bot",
-        "arg_no": "0",
-        "truth_bit": "0"
+        "arg_no": 0,
+        "truth_bit": "0",
+        "self_composite": 1,
+        "else_composite": 1
     }
 }
