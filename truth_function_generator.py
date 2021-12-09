@@ -1,3 +1,6 @@
+# NOTE: CLEAN THIS HORRIBLE CODE PLZ.
+
+
 def check_equality_of_paranthesis(formula):
     l = formula.count("(")
     r = formula.count(")")
@@ -62,31 +65,26 @@ formula is a well-formed formula in a string data and var_names is a set of vari
         formula1 = formula1[1:-1].strip()
     if formula1 in var_names:
         return lambda *args: args[var_names.index(formula1)]
-
     tape = extract_highest_order_schemes_and_connectives(formula1)
-    # TODO: check for duplicate and self composition and else composition
-    # for i in range(len(tape)):
-    #     if tape[i] not in connectives_dict.keys():
-    #         tape[i] = generate_truth_function(tape[i], var_names, connectives_dict)
-
-
-    for cn in range(3): # NOTE: 3 is the maximum number of places that a connective has.
-        tape_cons = [s for s in tape if s in connectives_dict.keys()]
-        if not tape_cons:
-            if len(tape) == 1:
-                break
-            raise Exception(f"Out of connectives in higher order tape!{tape}")
-        for con in tape_cons:
-            if connectives_dict[con]['arg_no'] == cn:
-                ind = tape.index(con)
-                st = ind - cn // 2
-                end = ind + (cn + 1) // 2 + 1
-                s = " ".join(tape[st: end])
-                s = f"({s})"
-                tape[st: end] = [s]
-    
-    tape = extract_highest_order_schemes_and_connectives(tape[0][1:-1])
     tape_cons = [s for s in tape if s in connectives_dict.keys()]
+    if len(tape_cons) > 1:
+        # TODO: check for duplicate and self composition and else composition
+        for cn in range(3): # NOTE: 3 is the maximum number of places that a connective has.
+            tape_cons = [s for s in tape if s in connectives_dict.keys()]
+            if not tape_cons:
+                if len(tape) == 1:
+                    break
+                raise Exception(f"Out of connectives in higher order tape!{tape}")
+            for con in tape_cons:
+                if connectives_dict[con]['arg_no'] == cn:
+                    ind = tape.index(con)
+                    st = ind - cn // 2
+                    end = ind + (cn + 1) // 2 + 1
+                    s = " ".join(tape[st: end])
+                    s = f"({s})"
+                    tape[st: end] = [s]
+        tape = extract_highest_order_schemes_and_connectives(tape[0][1:-1])
+        tape_cons = [s for s in tape if s in connectives_dict.keys()]
     if not len(tape_cons) == 1:
         raise Exception(f"not well-formed! {len(tape_cons)}")
     con = tape_cons[0]
