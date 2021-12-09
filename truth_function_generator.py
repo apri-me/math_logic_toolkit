@@ -65,11 +65,10 @@ formula is a well-formed formula in a string data and var_names is a set of vari
 
     tape = extract_highest_order_schemes_and_connectives(formula1)
     # TODO: check for duplicate and self composition and else composition
-    for i in range(len(tape)):
-        if tape[i] not in connectives_dict.keys():
-            tape[i] = generate_truth_function(tape[i], var_names, connectives_dict)
+    # for i in range(len(tape)):
+    #     if tape[i] not in connectives_dict.keys():
+    #         tape[i] = generate_truth_function(tape[i], var_names, connectives_dict)
 
-    y = None
 
     for cn in range(3): # NOTE: 3 is the maximum number of places that a connective has.
         tape_cons = [s for s in tape if s in connectives_dict.keys()]
@@ -82,10 +81,21 @@ formula is a well-formed formula in a string data and var_names is a set of vari
                 ind = tape.index(con)
                 st = ind - cn // 2
                 end = ind + (cn + 1) // 2 + 1
-                funcs = [f for f in tape[st: end] if f is not con]
-                f = lambda *args: get_truth_by_truth_bit([func(*args) for func in funcs], connectives_dict[con]['truth_bit'])
-                tape[st: end] = [f]
-    return tape[0]
+                s = " ".join(tape[st: end])
+                s = f"({s})"
+                tape[st: end] = [s]
+    
+    tape = extract_highest_order_schemes_and_connectives(tape[0][1:-1])
+    tape_cons = [s for s in tape if s in connectives_dict.keys()]
+    if not len(tape_cons) == 1:
+        raise Exception(f"not well-formed! {len(tape_cons)}")
+    con = tape_cons[0]
+    tape.remove(con)
+    tape_funcs = [generate_truth_function(
+        a, var_names, connectives_dict) for a in tape]
+    return lambda *args: get_truth_by_truth_bit([a(*args) for a in tape_funcs], connectives_dict[con]['truth_bit'])
+
+
 
 
 class NotEqualParanthesisException(Exception):
