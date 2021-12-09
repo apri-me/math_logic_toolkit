@@ -77,9 +77,6 @@ formula is a well-formed formula in a string data and var_names is a set of vari
             if len(tape) == 1:
                 break
             raise Exception(f"Out of connectives in higher order tape!{tape}")
-        if cn == 2:
-            print(y(0, 1))
-            return tape[0]
         for con in tape_cons:
             if connectives_dict[con]['arg_no'] == cn:
                 ind = tape.index(con)
@@ -88,19 +85,7 @@ formula is a well-formed formula in a string data and var_names is a set of vari
                 funcs = [f for f in tape[st: end] if f is not con]
                 f = lambda *args: get_truth_by_truth_bit([func(*args) for func in funcs], connectives_dict[con]['truth_bit'])
                 tape[st: end] = [f]
-                if cn == 1:
-                    print(f(0, 1))
-                    y = f
     return tape[0]
-    
-
-    # if not len(tape_cons) == 1:
-    #     raise Exception(f"not well-formed! {len(tape_cons)}")
-    # con = tape_cons[0]
-    # tape.remove(con)
-    # tape_funcs = [generate_truth_function(
-    #     a, var_names, connectives_dict) for a in tape]
-    # return lambda *args: get_truth_by_truth_bit([a(*args) for a in tape_funcs], connectives_dict[con]['truth_bit'])
 
 
 class NotEqualParanthesisException(Exception):
