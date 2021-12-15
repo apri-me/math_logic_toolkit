@@ -5,7 +5,7 @@ def generate_all_states(n):
 
 def generate_states_and_output(n, truth_func):
     states = generate_all_states(n)
-    return [[*state, truth_func(*state)] for state in states]
+    return [[*state, truth_func(*state)] for state in states][::-1]
 
 
 def generate_normal_form(truth_func, vars, basic_seperator, complex_seperator, neg_sym, out_base) -> str:

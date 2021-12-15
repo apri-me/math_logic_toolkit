@@ -9,4 +9,4 @@ def gen_table(truth_func, vars):
     pt = PT([*vars, "OUTPUT"])
     for st in st_out:
         pt.add_row(["T" if s else "F" for s in st])
-    return pt
+    return str(pt)

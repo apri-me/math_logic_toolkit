@@ -8,30 +8,63 @@ from dcnf_gen import generate_cnf, generate_dnf
 from truth_table_gen import gen_table
 
 
-def get_input(stdscr, message, fw=1, fh=1):
+def add_new_lines_to_nf(stdscr, nf: str):
+    _, w = stdscr.getmaxyx()
+    if len(nf) > w - 2:
+        ind = nf[:w-2].rfind("(")
+        return nf[:ind] + "\n" + add_new_lines_to_nf(stdscr, nf[ind:])
+    return nf
+
+
+def centralized_yx(stdscr, text):
+    lines_no = text.count("\n") + 1
+    firstl = text.splitlines()[0]
+    h, w = stdscr.getmaxyx()
+    x = (w - len(firstl)) // 2
+    y = (h - lines_no) // 2
+    return y, x, lines_no
+
+
+def multi_addstr(stdscr, y, x, message: str, color_pair):
+    for i, line in enumerate(message.splitlines()):
+        stdscr.addstr(y+i, x, line, color_pair)
+
+
+def w84q(stdscr):
+    while True:
+        ch = stdscr.getch()
+        if ch == ord('q'):
+            break
+
+
+def get_input(stdscr, message, fw=1, fh=1, default=""):
     stdscr.clear()
     h, w = stdscr.getmaxyx()
-    stdscr.addstr(1, (w - len(message)) // 2, message)
+    stdscr.addstr(1, (w - len(message)) // 2, message, curses.color_pair(6))
     editwin_x, editwin_w = 3 + floor(w/2 * (1 - fw**(-1))), int(w // fw) - 6
     editwin_y, editwin_h = 4 + floor(h/2 * (1 - fh**(-1))), int(h // fh) - 8
     editwin = curses.newwin(editwin_h, editwin_w, editwin_y, editwin_x)
-    rectangle(stdscr, editwin_y - 1, editwin_x - 1, h - editwin_y, w - editwin_x )
+    rectangle(stdscr, editwin_y - 1, editwin_x -
+              1, h - editwin_y, w - editwin_x)
     box = Textbox(editwin)
     curses.curs_set(1)
     stdscr.refresh()
+    curses.beep()
+    editwin.addstr(default.encode("utf-8"))
     box.edit()
     wff = box.gather()
     curses.curs_set(0)
     return wff.strip()
 
 
-def get_wff_from_user(stdscr):
-    return get_input(stdscr, "Enter your well-formed formula! hit (Ctrl-G) to save!", fw=1.2, fh=1.2)
+def get_wff_from_user(stdscr, default):
+    message = "Enter your well-formed formula! hit (Ctrl-G) to save!"
+    return get_input(stdscr, message, fw=1.2, fh=1.2, default=default)
 
 
-def get_vars_from_user(stdscr):
+def get_vars_from_user(stdscr, default):
     message = "Eneter varaiables that you want to use in formula. Seperate them by spaces then hit (Ctrl-G) to save!"
-    return get_input(stdscr, message, fh=5, fw=2)
+    return get_input(stdscr, message, fh=3, fw=2, default=default)
 
 
 def get_connectives_dict(f="connectives.json"):
@@ -49,12 +82,12 @@ def print_menu(stdscr, menu_items, current_row_idx):
         y = h // 2 - len(menu_items)//2 + i
         if i == current_row_idx:
             stdscr.attron(curses.color_pair(2))
-        if not row["active"]:
+        if not row["active"]():
             stdscr.attron(curses.color_pair(3))
         stdscr.addstr(y, x, row["name"])
         if i == current_row_idx:
             stdscr.attroff(curses.color_pair(2))
-        if not row["active"]:
+        if not row["active"]():
             stdscr.attroff(curses.color_pair(3))
 
     stdscr.refresh()
@@ -62,32 +95,37 @@ def print_menu(stdscr, menu_items, current_row_idx):
 
 def main(stdscr):
     curses.curs_set(0)
-    curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
-    curses.init_pair(2, 232, curses.COLOR_WHITE)
-    curses.init_pair(3, 235, curses.COLOR_BLACK)
+    curses.init_pair(1, 75, curses.COLOR_BLACK) # Main color: Light Blue
+    curses.init_pair(2, 232, curses.COLOR_WHITE) # Selected item: background White
+    curses.init_pair(3, 235, curses.COLOR_BLACK) # Disabled item: gray near to black
+    curses.init_pair(4, 160, curses.COLOR_BLACK) # errored text: red
+    curses.init_pair(5, 220, curses.COLOR_BLACK) # Warned text: yello
+    curses.init_pair(6, 40, curses.COLOR_BLACK) # Succeeded text: green
+
     current_wff = ""
+    truth_function = None
     menu_items = [("ENTER WFF", True), ("TRUTH TABLE", False),
                   ("DNF", True), ("CNF", False), ("Quit", True)]
     menu_items = [
         {
             "name": "ENTER WFF",
-            "active": True
+            "active": lambda : True
         },
         {
             "name": "TRUTH TABLE",
-            "active": False
+            "active": lambda : bool(current_wff)
         },
         {
             "name": "EQUIVALENT DNF",
-            "active": False
+            "active": lambda : bool(current_wff)
         },
         {
             "name": "EQUIVALENT CNF",
-            "active": False
+            "active": lambda : bool(current_wff)
         },
         {
             "name": "QUIT",
-            "active": True
+            "active": lambda : True
         },
     ]
 
@@ -95,15 +133,8 @@ def main(stdscr):
     stdscr.bkgd(' ', curses.color_pair(1) | curses.A_BOLD)
 
     connectives_dict = get_connectives_dict()
-    vars = ("a", "b", "c")
-    formula1 = "(\\neg a \\or b) \\imply c"
-
-    f = generate_truth_function(formula1, vars, connectives_dict)
-
-    table = gen_table(f, vars)
-
+    vars = []
     print_menu(stdscr, menu_items, 0)
-
     current_row_idx = 0
     print_menu(stdscr, menu_items, current_row_idx)
     while 1:
@@ -112,40 +143,55 @@ def main(stdscr):
         if key == curses.KEY_UP:
             current_row_idx -= 1
             current_row_idx %= len(menu_items)
-            while not menu_items[current_row_idx]["active"]:
+            while not menu_items[current_row_idx]["active"]():
                 current_row_idx -= 1
                 current_row_idx %= len(menu_items)
         elif key == curses.KEY_DOWN:
             current_row_idx += 1
             current_row_idx %= len(menu_items)
-            while not menu_items[current_row_idx]["active"]:
+            while not menu_items[current_row_idx]["active"]():
                 current_row_idx += 1
                 current_row_idx %= len(menu_items)
         elif key == curses.KEY_ENTER or key in [10, 13]:
             if menu_items[current_row_idx]["name"] == "ENTER WFF":
-                current_wff = get_vars_from_user(stdscr)
-            stdscr.clear()
-            stdscr.addstr(0, 0, "You pressed {}".format(
-                menu_items[current_row_idx]["name"]))
-            stdscr.refresh()
-            stdscr.getch()
+                vars = get_vars_from_user(
+                    stdscr, default=" ".join(vars)).strip().split()
+                current_wff = get_wff_from_user(stdscr, default=current_wff)
+                truth_function = generate_truth_function(
+                    current_wff, vars, connectives_dict)
+            elif menu_items[current_row_idx]["name"] == "TRUTH TABLE":
+                stdscr.clear()
+                table = gen_table(truth_function, vars)
+                y, x, lines_no = centralized_yx(stdscr, table)
+                multi_addstr(stdscr, y, x, table, curses.color_pair(5))
+                quite_message = "Press 'q' to quite table!"
+                stdscr.addstr(y+lines_no, x, quite_message, curses.color_pair(4))
+                w84q(stdscr)
+
+            elif menu_items[current_row_idx]["name"] == "EQUIVALENT DNF":
+                dnf = generate_dnf(truth_function, vars,
+                                   "\\and", "\\or", "\\neg")
+                dnf = add_new_lines_to_nf(stdscr, dnf)
+                y, x, lines_no = centralized_yx(stdscr, dnf)
+                multi_addstr(stdscr, y, x, dnf, curses.color_pair(5))
+                quite_message = "Press 'q' to quite dnf!"
+                stdscr.addstr(y+lines_no+1, x, quite_message, curses.color_pair(4))
+                w84q(stdscr)
+            elif menu_items[current_row_idx]["name"] == "EQUIVALENT CNF":
+                cnf = generate_cnf(truth_function, vars,
+                                   "\\and", "\\or", "\\neg")
+                cnf = add_new_lines_to_nf(stdscr, cnf)
+                y, x, lines_no = centralized_yx(stdscr, cnf)
+                multi_addstr(stdscr, y, x, cnf, curses.color_pair(5))
+                quite_message = "Press 'q' to quite cnf!"
+                stdscr.addstr(y+lines_no+1, x, quite_message, curses.color_pair(4))
+                w84q(stdscr)
+
+            elif menu_items[current_row_idx]["name"] == "QUIT":
+                return
 
         print_menu(stdscr, menu_items, current_row_idx)
-
         stdscr.refresh()
-
-    # vars = ("a", "b", "c")
-    # formula1 = "(\\neg a \\or b) \\imply c"
-
-    # f = generate_truth_function(formula1, vars, connectives_dict)
-
-    # dnf = generate_dnf(f, vars, "\\and", "\\or", "\\neg")
-    # cnf = generate_cnf(f, vars, "\\and", "\\or", "\\neg")
-    # table= gen_table(f, vars)
-
-    # print(dnf)
-    # print(cnf)
-    # print(table)
 
 
 curses.wrapper(main)
