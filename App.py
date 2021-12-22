@@ -93,6 +93,37 @@ def print_menu(stdscr, menu_items, current_row_idx):
     stdscr.refresh()
 
 
+def print_help_menu(stdscr, connectives_dict: dict):
+    _, x = stdscr.getmaxyx()
+    main_message = "We use latex-like commands for connectives."
+    stdscr.addstr(1, (x - len(main_message))//2, main_message, curses.color_pair(5))
+    truth_bit_message = "Truth-bit is 2^n-bit string that shows connective's behaviour in each state."
+    stdscr.addstr(3, (x - len(truth_bit_message))//2, truth_bit_message, curses.color_pair(5))
+    connectives_title = "You can see all connectives command below"
+    stdscr.addstr(5, (x - len(connectives_title))//2, connectives_title)
+    for i, (con, di) in enumerate(connectives_dict.items()):
+        text = f"{con} for {di['name']}"
+        length = len(text)
+        text = text.split()
+        stdscr.addstr(6+i, (x - length)//2, text[0], curses.color_pair(6))
+        stdscr.addstr(f" {text[1]} ")
+        stdscr.addstr(" ".join(text[2:]), curses.color_pair(4))
+    examples = [
+        "(a \\and b \\and c)",
+        "(a \\nand b) \\imply \\bot",
+        "(p \\or \\neg q) \\imply (p \\or q)"
+    ]
+    start_ind = i + 12
+    example_title = "These are some examples of formulas:"
+    stdscr.addstr(start_ind-2, (x - len(example_title))//2, example_title, curses.color_pair(5))
+    for i, eg in enumerate(examples):
+        stdscr.addstr(start_ind+2*i, (x - len(eg))//2, eg, curses.color_pair(6))
+    start_ind += 2*i + 4
+    quite_message = "Enter q to quite menu!"
+    stdscr.addstr(start_ind, (x - len(quite_message))//2, quite_message, curses.color_pair(4))
+
+
+
 def main(stdscr):
     curses.curs_set(0)
     curses.init_pair(1, 75, curses.COLOR_BLACK) # Main color: Light Blue
@@ -122,6 +153,10 @@ def main(stdscr):
         {
             "name": "EQUIVALENT CNF",
             "active": lambda : bool(current_wff)
+        },
+        {
+            "name": "HELP",
+            "active": lambda : True
         },
         {
             "name": "QUIT",
@@ -185,6 +220,10 @@ def main(stdscr):
                 multi_addstr(stdscr, y, x, cnf, curses.color_pair(5))
                 quite_message = "Press 'q' to quite cnf!"
                 stdscr.addstr(y+lines_no+1, x, quite_message, curses.color_pair(4))
+                w84q(stdscr)
+            
+            elif menu_items[current_row_idx]["name"] == "HELP":
+                print_help_menu(stdscr, connectives_dict)
                 w84q(stdscr)
 
             elif menu_items[current_row_idx]["name"] == "QUIT":
