@@ -31,6 +31,6 @@ def generate_dnf(truth_func, vars, and_sym, or_sym, neg_sym):
     return generate_normal_form(truth_func, vars, and_sym, or_sym, neg_sym, 1)
 
 
-# NOTE: Generates Disjunctive normal form formula out of truth function
+# NOTE: Generates Conjunctive normal form formula out of truth function
 def generate_cnf(truth_func, vars, and_sym, or_sym, neg_sym):
     return generate_normal_form(truth_func, vars, or_sym, and_sym, neg_sym, 0)
